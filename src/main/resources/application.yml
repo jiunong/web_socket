@@ -1,0 +1,15 @@
+server:
+  port: 9999
+  tomcat:
+    uri-encoding: UTF-8
+spring:
+  mvc:
+    static-path-pattern: /static/**
+
+  thymeleaf:
+    enabled: true
+    cache: false
+    mode: HTML5
+    servlet:
+      content-type: text/html
+svgDir: file:F:/data/svg/

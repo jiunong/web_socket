@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "svgDir",
+      "type": "java.lang.String",
+      "description": "Description for svgDir."
+    }
+  ] }
