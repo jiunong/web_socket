@@ -8,30 +8,11 @@ package com.xcloud.svg.socket;
  */
 public enum MsgStatus {
 
-    ALIVE(1,"待消费");
-
-    private Integer code;
-    private String status;
-    MsgStatus() {
-    }
-    MsgStatus(Integer code, String status) {
-        this.code = code;
-        this.status = status;
+    ALIVE("待消费"),
+    DEAL("已消费"),
+    RETRY("重试"),
+    FAIL("未消费");
+    MsgStatus( String status) {
     }
 
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

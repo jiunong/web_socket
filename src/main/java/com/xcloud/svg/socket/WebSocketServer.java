@@ -2,8 +2,11 @@ package com.xcloud.svg.socket;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.json.JSONUtil;
+import com.xcloud.svg.util.LogsHandler;
+import com.xcloud.svg.util.SocketAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import sun.rmi.log.LogHandler;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -13,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
-import static com.xcloud.svg.socket.SocketAddress.getRemoteAddress;
+import static com.xcloud.svg.util.SocketAddress.getRemoteAddress;
 
 /**
  * TODO
@@ -72,10 +75,10 @@ public class WebSocketServer {
      */
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
-        rebuildMsg(session,message);
+        rebuildMsg(session, message);
         RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
         InetSocketAddress remoteAddress = getRemoteAddress(session);
-        log.info("来自客户端{}的消息:{}",remoteAddress,message);
+        log.info("来自客户端{}的消息:{}", remoteAddress, message);
         // 群发消息 页面展示用
       /*  for (WebSocketServer item : webSocketSet) {
             try {
@@ -120,7 +123,7 @@ public class WebSocketServer {
      */
     public static void sendMessageAll(String message) {
         clients.forEach(u -> {
-            List<DataPackage> dataPackages = Optional.ofNullable( msgStream.get(u)).orElse(new LinkedList<>());
+            List<DataPackage> dataPackages = Optional.ofNullable(msgStream.get(u)).orElse(new LinkedList<>());
             DataPackage dataPackage = DataPackage.builder()
                     .id(UUID.randomUUID().toString())
                     .data(message)
@@ -136,18 +139,19 @@ public class WebSocketServer {
 
 
     /**
-    * TODO
-    * @param session 客户端
-    * @param List<DataPackage> 数据包集合
-    * @return void
-    * @author xuhong.ding
-    * @since 2021/1/14 14:52
-    */
-    public static void sendMessageOne(Session session,List<DataPackage> dataPackages){
+     * TODO
+     *
+     * @param session           客户端
+     * @param List<DataPackage> 数据包集合
+     * @return void
+     * @author xuhong.ding
+     * @since 2021/1/14 14:52
+     */
+    public static void sendMessageOne(Session session, List<DataPackage> dataPackages) {
         msgStream.put(session, dataPackages);
         dataPackages.forEach(dataPackage -> {
             session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dataPackage));
-            log.info("向客户端{}重发消息{}",SocketAddress.getRemoteAddress(session),JSONUtil.toJsonStr(dataPackage));
+            log.info("向客户端{}重发消息{}", SocketAddress.getRemoteAddress(session), JSONUtil.toJsonStr(dataPackage));
         });
     }
 
@@ -168,14 +172,19 @@ public class WebSocketServer {
     }
 
     /**
-    * TODO 清理 已经消费的消息
-    * @param session 客户端
-    * @Param msgId 消息id
-    * @return void
-    * @author xuhong.ding
-    * @since 2021/1/14 16:06
-    */
-    private static void rebuildMsg(Session session,String msgId){
+     * TODO 清理 已经消费的消息
+     *
+     * @param session 客户端
+     * @return void
+     * @Param msgId 消息id
+     * @author xuhong.ding
+     * @since 2021/1/14 16:06
+     */
+    private static void rebuildMsg(Session session, String msgId) {
+
+        DataPackage dataPackage = msgStream.get(session).stream().filter(u -> msgId.equals(u.getId())).findFirst().get();
+        LogsHandler.logs(session, dataPackage.withOffTime(DateTime.now().toString()).withStatus(MsgStatus.DEAL));
+
         List<DataPackage> collect = msgStream.get(session).stream().filter(u -> !msgId.equals(u.getId())).collect(Collectors.toList());
         msgStream.put(session, collect);
     }

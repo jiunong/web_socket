@@ -2,6 +2,7 @@ package com.xcloud.svg.socket;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.With;
 
 /**
  * TODO
@@ -11,6 +12,7 @@ import lombok.Data;
  */
 @Data
 @Builder
+@With
 public class DataPackage {
 
     private String id;

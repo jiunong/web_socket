@@ -1,4 +1,4 @@
-package com.xcloud.svg.socket;
+package com.xcloud.svg.util;
 
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
