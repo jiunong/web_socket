@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 import static com.xcloud.svg.socket.SocketAddress.getRemoteAddress;
 
@@ -70,20 +71,20 @@ public class WebSocketServer {
      * @param session 可选的参数
      */
     @OnMessage
-    public void onMessage(String message, Session session) {
+    public void onMessage(String message, Session session) throws IOException {
+        rebuildMsg(session,message);
         RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
         InetSocketAddress remoteAddress = getRemoteAddress(session);
-        String msg = "来自客户端" + remoteAddress + "的消息:" + message;
-        System.out.println(msg);
-        // 群发消息
-        for (WebSocketServer item : webSocketSet) {
+        log.info("来自客户端{}的消息:{}",remoteAddress,message);
+        // 群发消息 页面展示用
+      /*  for (WebSocketServer item : webSocketSet) {
             try {
-                item.sendMessage(msg);
+                item.sendMessage(remoteAddress+":"+message);
             } catch (IOException e) {
                 e.printStackTrace();
                 continue;
             }
-        }
+        }*/
     }
 
     /**
@@ -99,7 +100,7 @@ public class WebSocketServer {
     }
 
     /**
-     * 这个方法与上面几个方法不一样。没有用注解，是根据自己需要添加的方法。
+     * TODO 返回消息 不被监控
      *
      * @param message
      * @throws IOException
@@ -110,7 +111,7 @@ public class WebSocketServer {
     }
 
     /**
-     * TODO 给所有连接的客户端发送消息
+     * TODO 给所有连接的客户端发送消息，调用该方法的消息会被监控
      *
      * @param message
      * @return void
@@ -132,6 +133,7 @@ public class WebSocketServer {
             u.getAsyncRemote().sendText(JSONUtil.toJsonStr(dataPackage));
         });
     }
+
 
     /**
     * TODO
@@ -163,5 +165,18 @@ public class WebSocketServer {
 
     public static HashMap<Session, List<DataPackage>> getMsgStream() {
         return msgStream;
+    }
+
+    /**
+    * TODO 清理 已经消费的消息
+    * @param session 客户端
+    * @Param msgId 消息id
+    * @return void
+    * @author xuhong.ding
+    * @since 2021/1/14 16:06
+    */
+    private static void rebuildMsg(Session session,String msgId){
+        List<DataPackage> collect = msgStream.get(session).stream().filter(u -> !msgId.equals(u.getId())).collect(Collectors.toList());
+        msgStream.put(session, collect);
     }
 }
