@@ -6,17 +6,13 @@ import com.xcloud.svg.util.LogsHandler;
 import com.xcloud.svg.util.SocketAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import sun.rmi.log.LogHandler;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
-
-import static com.xcloud.svg.util.SocketAddress.getRemoteAddress;
 
 /**
  * TODO
@@ -36,11 +32,11 @@ public class WebSocketServer {
 
     private static Vector<Session> clients = new Vector<>();
 
+    /*存放所有未消费的数据*/
     private static HashMap<Session, List<DataPackage>> msgStream = new HashMap<>();
 
     // 与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
-    private String ipaddr;
 
     /**
      * 连接建立成功调用的方法
@@ -53,7 +49,8 @@ public class WebSocketServer {
         this.session = session;
         webSocketSet.add(this); // 加入set中
         addOnlineCount(); // 在线数加1
-        System.out.println(DateTime.now() + ":有新连接加入！当前在线人数为" + getOnlineCount());
+        LogsHandler.logs("连接".concat(SocketAddress.getRemoteAddress(session)).concat("加入！当前在线人数为:").concat(getOnlineCount() + ""));
+
     }
 
     /**
@@ -64,7 +61,7 @@ public class WebSocketServer {
         clients.remove(session);
         webSocketSet.remove(this); // 从set中删除
         subOnlineCount(); // 在线数减1
-        System.out.println(DateTime.now() + ":有一连接关闭！当前在线人数为" + getOnlineCount());
+        LogsHandler.logs("连接".concat(SocketAddress.getRemoteAddress(session)).concat("关闭！当前在线人数为:").concat(getOnlineCount() + ""));
     }
 
     /**
@@ -76,45 +73,23 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         rebuildMsg(session, message);
-        RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
-        InetSocketAddress remoteAddress = getRemoteAddress(session);
-        log.info("来自客户端{}的消息:{}", remoteAddress, message);
-        // 群发消息 页面展示用
-      /*  for (WebSocketServer item : webSocketSet) {
-            try {
-                item.sendMessage(remoteAddress+":"+message);
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue;
-            }
-        }*/
     }
 
     /**
-     * 发生错误时调用
+     * TODO 发生错误时调用
      *
      * @param session
      * @param error
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        System.out.println("发生错误");
-        error.printStackTrace();
+        LogsHandler.logs(SocketAddress.getRemoteAddress(session).concat("发生错误:").concat(error.getMessage()));
     }
 
-    /**
-     * TODO 返回消息 不被监控
-     *
-     * @param message
-     * @throws IOException
-     */
-    public void sendMessage(String message) throws IOException {
-        this.session.getBasicRemote().sendText(message);
-        // this.session.getAsyncRemote().sendText(message);
-    }
 
     /**
      * TODO 给所有连接的客户端发送消息，调用该方法的消息会被监控
+     * 用来发送通知
      *
      * @param message
      * @return void
@@ -140,6 +115,7 @@ public class WebSocketServer {
 
     /**
      * TODO
+     * 用来resend消息
      *
      * @param session           客户端
      * @param List<DataPackage> 数据包集合
@@ -151,7 +127,6 @@ public class WebSocketServer {
         msgStream.put(session, dataPackages);
         dataPackages.forEach(dataPackage -> {
             session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dataPackage));
-            log.info("向客户端{}重发消息{}", SocketAddress.getRemoteAddress(session), JSONUtil.toJsonStr(dataPackage));
         });
     }
 
@@ -180,8 +155,7 @@ public class WebSocketServer {
      * @author xuhong.ding
      * @since 2021/1/14 16:06
      */
-    private static void rebuildMsg(Session session, String msgId) {
-
+    private void rebuildMsg(Session session, String msgId) {
         DataPackage dataPackage = msgStream.get(session).stream().filter(u -> msgId.equals(u.getId())).findFirst().get();
         LogsHandler.logs(session, dataPackage.withOffTime(DateTime.now().toString()).withStatus(MsgStatus.DEAL));
 

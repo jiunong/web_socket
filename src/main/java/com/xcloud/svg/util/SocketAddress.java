@@ -4,6 +4,7 @@ import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.util.Optional;
 
 /**
  * TODO
@@ -13,7 +14,8 @@ import java.net.InetSocketAddress;
  */
 public class SocketAddress {
 
-    public static InetSocketAddress getRemoteAddress(Session session) {
+
+    public static String getRemoteAddress(Session session) {
         if (session == null) {
             return null;
         }
@@ -22,7 +24,7 @@ public class SocketAddress {
 //		InetSocketAddress addr = (InetSocketAddress) getFieldInstance(async,"base#sos#socketWrapper#socket#sc#remoteAddress");
         //在Tomcat 8.5以上版本有效
         InetSocketAddress addr = (InetSocketAddress) getFieldInstance(async, "base#socketWrapper#socket#sc#remoteAddress");
-        return addr;
+        return Optional.ofNullable(addr).map(InetSocketAddress::toString).orElse("unknown host");
     }
 
     private static Object getFieldInstance(Object obj, String fieldPath) {
