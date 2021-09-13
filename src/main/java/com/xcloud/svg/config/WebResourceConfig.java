@@ -1,5 +1,6 @@
 package com.xcloud.svg.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -16,9 +17,11 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 @Configuration
 public class WebResourceConfig implements WebMvcConfigurer {
 
+    @Value("${svg.dir}")
+    private String svgDir;
 
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/svg/**").addResourceLocations("file:F:/data/svg/");
+        registry.addResourceHandler("/svg/**").addResourceLocations(svgDir);
     }
 
 /*    //服务器支持跨域

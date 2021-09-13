@@ -1,6 +1,7 @@
 package com.xcloud.svg.socket;
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.xcloud.svg.util.LogsHandler;
 import com.xcloud.svg.util.SocketAddress;
@@ -83,7 +84,7 @@ public class WebSocketServer {
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        LogsHandler.logs(SocketAddress.getRemoteAddress(session).concat("发生错误:").concat(error.getMessage()));
+        LogsHandler.logs(SocketAddress.getRemoteAddress(session).concat("发生错误:").concat(StrUtil.isEmptyOrUndefined(error.getMessage())?error.toString():error.getMessage()));
     }
 
 

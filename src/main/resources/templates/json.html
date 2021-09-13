@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>json</title>
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/jquery.svg.pan.zoom.js"></script>
+</head>
+<style type="text/css">
+    body {
+        margin: 0px;
+        padding: 0px;
+    }
+</style>
+<body>
+<div id="svg">
+
+    <table>
+        <tr th:each="json,jsonStat : ${list}">
+            <td th:text="${jsonStat.count}"></td>
+            <td th:text="${json.content}"></td>
+        </tr>
+    </table>
+
+
+
+</div>
+</body>
+</html>

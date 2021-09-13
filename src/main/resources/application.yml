@@ -12,4 +12,5 @@ spring:
     mode: HTML5
     servlet:
       content-type: text/html
-svgDir: file:F:/data/svg/
+svg:
+  dir: file:C:/svg/
