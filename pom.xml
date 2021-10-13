@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <dom4j.version>2.1.1</dom4j.version>
     </properties>
 
     <dependencies>
@@ -24,10 +25,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-       <!-- <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>-->
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>${dom4j.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
@@ -39,6 +41,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.15</version>
+        </dependency>
+        <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>5.5.1</version>
@@ -47,6 +54,27 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+        <dependency>
+            <groupId>network-plant-interaction-platform-util</groupId>
+            <artifactId>network-plant-interaction-platform-util</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/network-plant-interaction-platform-util-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>okhttp</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.14.9</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/okhttp-3.14.9.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>okio</groupId>
+            <artifactId>okio</artifactId>
+            <version>1.17.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/okio-1.17.2.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
@@ -54,6 +82,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>
