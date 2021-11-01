@@ -8,14 +8,14 @@
 </head>
 <script type="text/javascript">
     $(function () {
-        var list = ['PD_11100000','PD_11400000','PD_30500000','PD_11500000','PD_11500001','PD_11500002','PD_30900000','PD_30900002','PD_11200000','PD_30700000','PD_11000000','PD_11000001','PD_11000002','PD_30100002','PD_30200002','PD_30200003','PD_30200004','PD_30300000'];
-        var ROOT_PATH = 'https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples';
-        var chartDom = document.getElementById('main');
-        var myChart = echarts.init(chartDom);
-        var option;
+        const list = ['PD_11100000', 'PD_11400000', 'PD_30500000', 'PD_11500000', 'PD_11500001', 'PD_11500002', 'PD_30900000', 'PD_30900002', 'PD_11200000', 'PD_30700000', 'PD_11000000', 'PD_11000001', 'PD_11000002', 'PD_30100002', 'PD_30200002', 'PD_30200003', 'PD_30200004', 'PD_30300000'];
+        const ROOT_PATH = 'https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples';
+        const chartDom = document.getElementById('main');
+        const myChart = echarts.init(chartDom);
+        let option;
         myChart.showLoading();
         $.get('/treeData', function (result) {
-            var data = JSON.parse(result);
+            const data = JSON.parse(result);
             myChart.hideLoading();
 
             myChart.setOption(
@@ -35,15 +35,10 @@
                             left: '5%',
                             bottom: '1%',
                             right: '5%',
-                            symbolSize: (data,param) =>{
-                            /*    if (param.data.name == "TERMINAL" || "CONNECTIVITY_NODE" == param.data.name) {
-                                    return 0;
-                                } else {
-                                    return 7;
-                                }*/
-                                let da = param.data.value ? param.data.value.split('_')[0]+'_'+param.data.value.split('_')[1]:"";
+                            symbolSize: (data, param) => {
+                                let da = param.data.value ? param.data.value.split('_')[0] + '_' + param.data.value.split('_')[1] : "";
 
-                                if (list.includes(da) && param.data.name != "TERMINAL"){
+                                if (list.includes(da) && param.data.name != "TERMINAL") {
                                     return 7;
                                 } else {
                                     return 0;
@@ -55,14 +50,9 @@
                                 align: 'right',
                                 fontSize: 9,
                                 formatter: function (param) {
-                              /*      if (data.data.name == "TERMINAL" || "CONNECTIVITY_NODE" == data.data.name) {
-                                        return "";
-                                    } else {
-                                        return data.data.name;
-                                    }*/
-                                    let da = param.data.value ? param.data.value.split('_')[0]+'_'+param.data.value.split('_')[1]:"";
-                                    if (list.includes(da) && param.data.name != "TERMINAL"){
-                                        return param.data.name.substr(0,8)+"……";
+                                    let da = param.data.value ? param.data.value.split('_')[0] + '_' + param.data.value.split('_')[1] : "";
+                                    if (list.includes(da) && param.data.name != "TERMINAL") {
+                                        return param.data.name;
                                     } else {
                                         return "";
                                     }
@@ -78,7 +68,7 @@
                             emphasis: {
                                 focus: 'descendant'
                             },
-                            expandAndCollapse: false,
+                            expandAndCollapse: true,
                             animationDuration: 550,
                             animationDurationUpdate: 750
                         }
@@ -93,8 +83,8 @@
 </script>
 <style type="text/css">
     body {
-        margin: 0px;
-        padding: 0px;
+        margin: 0;
+        padding: 0;
     }
 </style>
 <body>
