@@ -115,8 +115,7 @@ public class WebSocketServer {
 
 
     /**
-     * TODO
-     * 用来resend消息
+     * TODO 用来resend消息
      *
      * @param session           客户端
      * @param List<DataPackage> 数据包集合

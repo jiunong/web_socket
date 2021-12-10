@@ -66,21 +66,22 @@ public class IndexController {
 
         File file0 = FileUtil.file("C:\\svg\\".concat(fileName).concat("0.json"));
         File file1 = FileUtil.file("C:\\svg\\".concat(fileName).concat("1.json"));
+        /*
         File file2 = FileUtil.file("C:\\svg\\".concat(fileName).concat("2.json"));
         File file3 = FileUtil.file("C:\\svg\\".concat(fileName).concat("3.json"));
-        File file4 = FileUtil.file("C:\\svg\\".concat(fileName).concat("4.json"));
+        File file4 = FileUtil.file("C:\\svg\\".concat(fileName).concat("4.json"));*/
         //JSONObject jsonObject = JSONUtil.parseObj(FileUtil.readString(file, CharsetUtil.UTF_8));
         JSONArray list0 = (JSONArray) JSONUtil.parseObj(FileUtil.readString(file0, CharsetUtil.UTF_8)).get("content");
         JSONArray list1 = (JSONArray) JSONUtil.parseObj(FileUtil.readString(file1, CharsetUtil.UTF_8)).get("content");
+        /*
         JSONArray list2 = (JSONArray) JSONUtil.parseObj(FileUtil.readString(file2, CharsetUtil.UTF_8)).get("content");
         JSONArray list3 = (JSONArray) JSONUtil.parseObj(FileUtil.readString(file3, CharsetUtil.UTF_8)).get("content");
         JSONArray list4 = (JSONArray) JSONUtil.parseObj(FileUtil.readString(file4, CharsetUtil.UTF_8)).get("content");
 
-        list0.addAll(list1);
         list0.addAll(list2);
         list0.addAll(list3);
-        list0.addAll(list4);
-
+        list0.addAll(list4);*/
+        list0.addAll(list1);
 
         request.setAttribute("list", list0);
         return "json";
