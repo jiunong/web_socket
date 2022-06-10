@@ -55,6 +55,11 @@
             <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+        <dependency>
             <groupId>network-plant-interaction-platform-util</groupId>
             <artifactId>network-plant-interaction-platform-util</artifactId>
             <version>1.0</version>

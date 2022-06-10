@@ -6,10 +6,13 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONUtil;
 import com.xcloud.svg.socket.DataPackage;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Session;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -24,12 +27,20 @@ public class LogsHandler {
     private static final String logPath = FileUtil.getWebRoot().getPath().concat(FileUtil.isWindows() ? "\\logs\\socket_log.out" : "/logs/socket_log.out");
 
     private static final File logOutFile;
+    private static LogsHandler logsHandler;
 
     static {
         logOutFile = new File(logPath);
         if (!FileUtil.exist(logOutFile)) {
             FileUtil.touch(logOutFile);
         }
+    }
+
+    public static LogsHandler instance() {
+        if (logsHandler == null) {
+            logsHandler = new LogsHandler();
+        }
+        return logsHandler;
     }
 
     /**
@@ -63,6 +74,21 @@ public class LogsHandler {
                 .concat(log)), logOutFile);
     }
 
+    /**
+     * TODO 添加日志
+     *
+     * @param log 日志
+     * @author xuhong.ding
+     * @since 2021/1/19 10:04
+     */
+    public void logs(String log, Object... var2) {
+        AtomicReference<String> logNew = new AtomicReference<>(log);
 
+        Arrays.asList(var2).forEach(u -> logNew.set(logNew.get().replaceFirst("\\{}", (String) u)));
+        FileUtil.appendUtf8Lines(ListUtil.toList(DateTime.now().toString()
+                .concat(":[")
+                .concat(logNew.get())
+                .concat("]")), logOutFile);
+    }
 
 }

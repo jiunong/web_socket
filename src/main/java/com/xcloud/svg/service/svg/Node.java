@@ -13,6 +13,7 @@ public class Node {
     private List<Node> children;
     private String value;
     private String name;
+    private String type;
 
     public void appendChild(Node n) {
         if (this.children == null) {

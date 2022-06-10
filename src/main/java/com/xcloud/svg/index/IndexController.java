@@ -1,13 +1,24 @@
 package com.xcloud.svg.index;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.fastjson.JSONObject;
+import com.xcloud.svg.pojo.MyBatisLog;
+import com.xcloud.svg.service.svg.PoleTransformer;
+import com.xcloud.svg.service.svg.PsrType;
 import com.xcloud.svg.service.svg.SvgService;
+import com.xcloud.svg.service.svg.XmlServlce;
 import com.xcloud.svg.socket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
+import org.dom4j.DocumentException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +26,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * TODO
@@ -45,12 +60,13 @@ public class IndexController {
         return "svgTree";
     }
 
-    @RequestMapping("treeData")
-    @ResponseBody
-    public String treeData() throws Exception {
-        return SvgService.findAll();
-    }
 
+    @RequestMapping("node")
+    @ResponseBody
+    public List<String> node(String rdfIds) throws Exception {
+        List<String> list = ListUtil.toList(rdfIds.split(","));
+        return SvgService.getTdfw("211公皋线单线图.sln.xml", list);
+    }
 
     @GetMapping("sendMessage/{message}")
     @ResponseBody
@@ -85,6 +101,115 @@ public class IndexController {
 
         request.setAttribute("list", list0);
         return "json";
+    }
+
+
+    @RequestMapping("treeData/{fileName}")
+    @ResponseBody
+    public JSONObject treeData(@PathVariable String fileName) throws Exception {
+        return SvgService.findAll(fileName);
+    }
+
+    @RequestMapping("treeData1")
+    @ResponseBody
+    public JSONObject treeData() throws Exception {
+        return SvgService.findAll("C:\\svg\\211公皋线单线图.sln.xml", "PD_30500000_276163");
+    }
+
+
+
+    @RequestMapping("treeData2")
+    @ResponseBody
+    public JSONObject treeData1() throws Exception {
+        return SvgService.findAll("C:\\svg\\518园区线单线图.sln.xml", "PD_30500000_271285");
+    }
+
+
+    @RequestMapping("treeData12")
+    @ResponseBody
+    public JSONObject treeData4() throws Exception {
+        return SvgService.findAll("C:\\svg\\211公皋线单线图.sln.xml", "PD_30500000_276163", "C:\\svg\\518园区线单线图.sln.xml");
+    }
+
+    @RequestMapping("treeData3")
+    @ResponseBody
+    public JSONObject treeData2() throws Exception {
+        return SvgService.findAll("C:\\svg\\113疏豪线单线图.sln.xml", "PD_31100000_288122");
+    }
+
+    @RequestMapping("treeData4")
+    @ResponseBody
+    public JSONObject treeData3() throws Exception {
+        return SvgService.findAll("C:\\svg\\111现代线单线图.sln.xml", "PD_30500000_305465");
+    }
+
+
+    @RequestMapping("treeData34")
+    @ResponseBody
+    public JSONObject treeData34() throws Exception {
+        return SvgService.findAll("C:\\svg\\113疏豪线单线图.sln.xml", "PD_31100000_288122", "C:\\svg\\111现代线单线图.sln.xml");
+    }
+
+    @RequestMapping("treeData5")
+    @ResponseBody
+    public JSONObject treeData5() throws Exception {
+        return SvgService.findAll("C:\\svg\\103东联线单线图.sln.xml", "PD_30500000_274491");
+    }
+
+    @GetMapping("logs")
+    public String mybatislog(HttpServletRequest request) {
+        List<MyBatisLog> logs = ListUtil.list(false);
+        List<File> mybatisLogs = FileUtil.loopFiles("C:\\logs\\", u -> u.getName().contains("mybatis_log"));
+        mybatisLogs.forEach(u -> {
+            List<String> strings = FileUtil.readUtf8Lines(u);
+            strings.forEach(v -> {
+                if (StrUtil.isNotEmpty(v)) {
+                    MyBatisLog myBatisLog = new MyBatisLog(v);
+                    logs.add(myBatisLog);
+                }
+            });
+        });
+        request.setAttribute("logs", logs);
+        return "logs";
+    }
+
+
+    @RequestMapping("poles/{fileName}")
+    public void poles(HttpServletResponse response, @PathVariable String fileName) throws Exception {
+        fileName = StrUtil.isEmpty(fileName) ? "211公皋线单线图.sln.xml" : fileName;
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        //如果EXPORT_PATH不存在，则创建
+        String filename = DateUtil.current() + ".xlsx";
+        String encode = URLEncoder.encode(filename, "UTF-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + encode);
+        String finalFileName = fileName;
+        EasyExcel.write(response.getOutputStream(), PoleTransformer.class)
+                .sheet("211公皋线单线图").doWrite(() -> {
+                    try {
+                        return XmlServlce.getPoles("C:\\svg\\" + finalFileName);
+                    } catch (DocumentException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
+    @RequestMapping("psrTypes")
+    public void poles(HttpServletResponse response) throws Exception {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        //如果EXPORT_PATH不存在，则创建
+        String filename = "psrtype" + DateUtil.current() + ".xlsx";
+        String encode = URLEncoder.encode(filename, "UTF-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + encode);
+        EasyExcel.write(response.getOutputStream(), PsrType.class)
+                .sheet("211公皋线单线图").doWrite(() -> {
+                    try {
+                        return XmlServlce.getPsrType(null);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
 }

@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>json</title>
+</head>
+<style type="text/css">
+    body {
+        margin: 0px;
+        padding: 0px;
+    }
+</style>
+<body>
+<div>
+
+    <table>
+        <tr th:each="log,state : ${logs}">
+            <td th:text="${state.count}"></td>
+            <td th:text="${log.ip}"></td>
+            <td th:text="${log.userId}"></td>
+            <td th:text="${log.userName}"></td>
+            <td th:text="${log.dateTime}"></td>
+            <td th:text="${log.method}"></td>
+            <td th:text="${log.sql}"></td>
+            <td th:text="${log.sqlType}"></td>
+            <td th:text="${log.description}"></td>
+        </tr>
+    </table>
+
+</div>
+</body>
+</html>

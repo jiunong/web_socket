@@ -4,18 +4,78 @@
     <meta charset="UTF-8">
     <title>svg</title>
     <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/d3.js"></script>
     <script src="../static/js/jquery.svg.pan.zoom.js"></script>
 </head>
 <script type="text/javascript">
+    var svgPanZoom,
+        COLOR = {
+            CHANGED: "rgb(0, 0, 255)",//选中改变的颜色
+            ORIGIN: "rgb(185,72,66)",//原来的颜色
+            SELECTED: "rgb(203 238 202 / 39%)",
+            ELECTRIC: 'rgb(0,255,52)',//电流值的颜色
+            POLECODE_LAYER_COLOR: 'rgb(255,255,255)'//杆塔的初始颜色
+        };
     $(function () {
-            $("#svg").load('/svg/'+$("#src").val(),function () {
-                /*实现svg图像缩放功能 */
-                let svgPanZoom = $("svg").svgPanZoom();
-                svgPanZoom.zoomFactor = 2.5;//缩放倍数
-                $("svg").css("height","100vh")
-                $("svg").css("width","100vw")
-            })
+        $("#svg").load('/svg/' + $("#src").val(), function () {
+            /*实现svg图像缩放功能 */
+            svgPanZoom = $("svg").svgPanZoom();
+            svgPanZoom.zoomFactor = 2.5;//缩放倍数
+            $("svg").css("height", "100vh")
+            $("svg").css("width", "100vw")
+            $("g").css("height", "100vh")
+            $("g").css("width", "100vw")
         })
+    })
+
+    function getTdfw(rdfId) {
+        $.ajax({
+            url: "/node",
+            type: "post",
+            data: {
+                rdfIds: rdfId
+            },
+            success: function (data) {
+                data.forEach(function (v, i) {
+                    if (v) {
+                        withElectric(v);
+                    }
+                })
+            }
+        })
+    }
+
+    function withElectric(id) {
+        if (id.indexOf('#') == -1) id = '#' + id
+        d3.select(id).select('use').style("fill", COLOR.CHANGED).style("stroke", COLOR.CHANGED, 'important')
+        d3.select(id).style("fill", COLOR.CHANGED).style("stroke", COLOR.CHANGED, 'important');
+        d3.select(id).select('polyline').style("stroke", COLOR.CHANGED, 'important')
+        d3.select(id).select('polygon').style("stroke", COLOR.CHANGED, 'important')
+    }
+
+    function callPaste() {
+        let id = $("#rdf").val();
+        if (id) {
+            if (id.indexOf('#') == -1) id = '#' + id
+            let x, y;
+            if (!d3.select(id).empty()) {
+                x = d3.select(id).select('use').attr('x');
+                y = d3.select(id).select('use').attr('y');
+            }
+            if ($("#svg").find('svg').length > 0) {
+                if (svgPanZoom) svgPanZoom.reset();
+                svgPanZoom = $("#svg").find('svg').svgPanZoom();
+                svgPanZoom.panFactor = 10;
+                if (x) {
+                    svgPanZoom.zoomFactor = 10;
+                    svgPanZoom.zoomIn();
+                    svgPanZoom.setCenter(x, y)
+                }
+                svgPanZoom.zoomFactor = 2;
+            }
+            withElectric(id);
+        }
+    }
 
 </script>
 <style type="text/css">
@@ -25,6 +85,9 @@
     }
 </style>
 <body>
+<div style="position: absolute;background: #000000;top: 1vh;font-size: larger;left: 1vw"><input id="rdf" type="text"/>
+    <button onclick="callPaste()" id="svgFocus">svgFocus</button>
+</div>
 <div id="svg" style="height: 100vh;width: 100vw;background-color: #000000;"></div>
 <input th:value="${src}" type="hidden" id="src">
 </body>

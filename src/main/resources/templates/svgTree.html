@@ -6,18 +6,36 @@
     <script src="../static/js/jquery.js"></script>
     <script src="../static/js/echarts.js"></script>
 </head>
+<style type="text/css">
+    body {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+<body>
+<button onclick="show(this,'1')">211公皋线单线图</button>
+<button onclick="show(this,'2')">518园区线单线图</button>
+<button onclick="show(this,'12')">211公皋线单线图&&518园区线单线图</button>
+<button onclick="show(this,'3')">113疏豪线单线图</button>
+<button onclick="show(this,'4')">111现代线单线图</button>
+<button onclick="show(this,'34')">113疏豪线单线图&&111现代线单线图</button>
+<button onclick="show(this,'5')">103东联线单线图</button>
+<button ><a id="download" href="">下载当前简图</a> </button>
+<input type="text" id="fileName">
+<div id="main" style="height: 100vh;width: 100vw;"></div>
+</body>
 <script type="text/javascript">
-    $(function () {
+
+    function show(obj, num) {
+        $('#fileName').val($(obj).text());
         const list = ['PD_11100000', 'PD_11400000', 'PD_30500000', 'PD_11500000', 'PD_11500001', 'PD_11500002', 'PD_30900000', 'PD_30900002', 'PD_11200000', 'PD_30700000', 'PD_11000000', 'PD_11000001', 'PD_11000002', 'PD_30100002', 'PD_30200002', 'PD_30200003', 'PD_30200004', 'PD_30300000'];
         const ROOT_PATH = 'https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples';
         const chartDom = document.getElementById('main');
-        const myChart = echarts.init(chartDom);
+        const myChart = echarts.init(chartDom, null, {renderer: 'svg'});
         let option;
         myChart.showLoading();
-        $.get('/treeData', function (result) {
-            const data = JSON.parse(result);
+        $.get('/treeData' + num, function (data) {
             myChart.hideLoading();
-
             myChart.setOption(
                 (option = {
                     tooltip: {
@@ -35,13 +53,13 @@
                             left: '5%',
                             bottom: '1%',
                             right: '5%',
+                            initialTreeDepth: 99989,
                             symbolSize: (data, param) => {
                                 let da = param.data.value ? param.data.value.split('_')[0] + '_' + param.data.value.split('_')[1] : "";
-
                                 if (list.includes(da) && param.data.name != "TERMINAL") {
-                                    return 7;
+                                    return 10;
                                 } else {
-                                    return 0;
+                                    return 1;
                                 }
                             },
                             label: {
@@ -77,17 +95,16 @@
             );
         });
         option && myChart.setOption(option);
+    }
 
+
+    const download = window.document.querySelector('#download')
+    download.addEventListener('click', () => {
+        const content = document.querySelector('svg').outerHTML
+        const blob = new Blob([content], {type: 'xml/svg'})
+        download.href = URL.createObjectURL(blob)
+        download.download = $('#fileName').val() + '.svg';
     })
 
 </script>
-<style type="text/css">
-    body {
-        margin: 0;
-        padding: 0;
-    }
-</style>
-<body>
-<div id="main" style="height: 100vh;width: 100vw;"></div>
-</body>
 </html>
