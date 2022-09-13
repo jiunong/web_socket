@@ -73,7 +73,7 @@ public class SvgService {
     public static JSONObject findAll(String fileName) throws Exception {
         List<JSONObject> list = ListUtil.list(false);
 
-        JSONObject jsonObject = XmlUtil.xmlJsonObj(FileUtil.readString(RELATIVEPATH + fileName, StandardCharsets.UTF_8));
+        JSONObject jsonObject = XmlUtil.xmlJsonObj(FileUtil.readString( fileName, StandardCharsets.UTF_8));
         jsonObject.keySet().forEach(u -> {
             List<JSONObject> data = ObjectToJsonList(jsonObject.get(u));
             list.addAll(data);

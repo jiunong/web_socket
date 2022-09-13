@@ -7,10 +7,12 @@
     <script src="../static/js/jquery.svg.pan.zoom.js"></script>
 </head>
 <script type="text/javascript">
+    var url = 'ws://192.168.135.208:5678';
+    var url2 = 'ws://localhost:9999/websocket';
     var websocket = null;
     //判断当前浏览器是否支持WebSocket
     if ('WebSocket' in window) {
-        websocket = new WebSocket("ws://localhost:9999/websocket");
+        websocket = new WebSocket(url2);
     } else {
         alert('当前浏览器 Not support websocket')
     }
@@ -57,7 +59,7 @@
 </script>
 <body>
 Welcome<br/>
-<input id="text" type="text"/>
+<textarea cols="30" rows="5" id="text"></textarea>
 <button onclick="send()">发送消息</button>
 <hr/>
 <button onclick="closeWebSocket()">关闭WebSocket连接</button>

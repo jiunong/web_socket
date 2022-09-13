@@ -73,7 +73,8 @@ public class WebSocketServer {
      */
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
-        rebuildMsg(session, message);
+        sendMessageAll(message);
+        //rebuildMsg(session, message);
     }
 
     /**

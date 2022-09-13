@@ -3,6 +3,7 @@ package com.xcloud.svg.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
@@ -24,7 +25,7 @@ public class WebResourceConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/svg/**").addResourceLocations(svgDir);
     }
 
-/*    //服务器支持跨域
+    //服务器支持跨域
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("*")
@@ -37,7 +38,7 @@ public class WebResourceConfig implements WebMvcConfigurer {
                         "X-Frame-Options")
                 .allowCredentials(false)
                 .maxAge(3600);
-    }*/
+    }
 
 
     @Bean

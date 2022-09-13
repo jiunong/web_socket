@@ -42,6 +42,7 @@ import java.util.List;
 @Slf4j
 public class IndexController {
 
+    private static String  PATH = "/Users/mac/sict/soft/apache-tomcat-7.0.96/webapps/omspdjx_upload/svg/";
 
     @RequestMapping("i/{src}")
     public String svg(@PathVariable String src, HttpServletRequest request) {
@@ -107,13 +108,13 @@ public class IndexController {
     @RequestMapping("treeData/{fileName}")
     @ResponseBody
     public JSONObject treeData(@PathVariable String fileName) throws Exception {
-        return SvgService.findAll(fileName);
+        return SvgService.findAll("/Users/mac/sict/soft/apache-tomcat-7.0.96/webapps/omspdjx_upload/svg_later/209民航线单线图.sln.xml");
     }
 
     @RequestMapping("treeData1")
     @ResponseBody
     public JSONObject treeData() throws Exception {
-        return SvgService.findAll("C:\\svg\\211公皋线单线图.sln.xml", "PD_30500000_276163");
+        return SvgService.findAll(PATH + "211公皋线单线图.sln.xml", "PD_30500000_276163");
     }
 
 
@@ -121,14 +122,14 @@ public class IndexController {
     @RequestMapping("treeData2")
     @ResponseBody
     public JSONObject treeData1() throws Exception {
-        return SvgService.findAll("C:\\svg\\518园区线单线图.sln.xml", "PD_30500000_271285");
+        return SvgService.findAll(PATH + "518园区线单线图.sln.xml", "PD_30500000_271285");
     }
 
 
     @RequestMapping("treeData12")
     @ResponseBody
     public JSONObject treeData4() throws Exception {
-        return SvgService.findAll("C:\\svg\\211公皋线单线图.sln.xml", "PD_30500000_276163", "C:\\svg\\518园区线单线图.sln.xml");
+        return SvgService.findAll(PATH + "211公皋线单线图.sln.xml", "PD_30500000_276163", "C:\\svg\\518园区线单线图.sln.xml");
     }
 
     @RequestMapping("treeData3")
