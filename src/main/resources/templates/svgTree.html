@@ -13,28 +13,28 @@
     }
 </style>
 <body>
-<button onclick="show(this,'1')">211公皋线单线图</button>
-<button onclick="show(this,'2')">518园区线单线图</button>
-<button onclick="show(this,'12')">211公皋线单线图&&518园区线单线图</button>
-<button onclick="show(this,'3')">113疏豪线单线图</button>
-<button onclick="show(this,'4')">111现代线单线图</button>
-<button onclick="show(this,'34')">113疏豪线单线图&&111现代线单线图</button>
-<button onclick="show(this,'5')">103东联线单线图</button>
-<button ><a id="download" href="">下载当前简图</a> </button>
-<input type="text" id="fileName">
-<div id="main" style="height: 100vh;width: 100vw;"></div>
+<input type="text" id="xmlSrc">
+<button onclick="show(this)">单线详图</button>
+<button onclick="show(this,'treeData12')">举例环网详图</button>
+<button onclick="openSvg()">SVG图</button>
+<button><a id="download" href="">下载当前简图</a></button>
+<input type="hidden" id="fileName">
+<div id="main" style="height: 94vh;width: 99vw;margin:10px;background-color: #000000"></div>
 </body>
 <script type="text/javascript">
 
     function show(obj, num) {
+        let url = num ? num : '/treeData/';
+        num = num ?   num : $("#xmlSrc").val();
+        url = url + num;
         $('#fileName').val($(obj).text());
-        const list = ['PD_11100000', 'PD_11400000', 'PD_30500000', 'PD_11500000', 'PD_11500001', 'PD_11500002', 'PD_30900000', 'PD_30900002', 'PD_11200000', 'PD_30700000', 'PD_11000000', 'PD_11000001', 'PD_11000002', 'PD_30100002', 'PD_30200002', 'PD_30200003', 'PD_30200004', 'PD_30300000'];
-        const ROOT_PATH = 'https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples';
-        const chartDom = document.getElementById('main');
-        const myChart = echarts.init(chartDom, null, {renderer: 'svg'});
+        var list = ['PD_11100000', 'PD_11400000', 'PD_30500000', 'PD_11500000', 'PD_11500001', 'PD_11500002', 'PD_30900000', 'PD_30900002', 'PD_11200000', 'PD_30700000', 'PD_11000000', 'PD_11000001', 'PD_11000002', 'PD_30100002', 'PD_30200002', 'PD_30200003', 'PD_30200004', 'PD_30300000'];
+        var chartDom = document.getElementById('main');
+        var myChart = echarts.init(chartDom, null, {renderer: 'svg'});
         let option;
         myChart.showLoading();
-        $.get('/treeData' + num, function (data) {
+        $.get(url, function (data) {
+            console.log(data)
             myChart.hideLoading();
             myChart.setOption(
                 (option = {
@@ -50,27 +50,29 @@
                             type: 'tree',
                             data: [data],
                             top: '1%',
-                            left: '5%',
+                            left: '1%',
                             bottom: '1%',
-                            right: '5%',
-                            initialTreeDepth: 99989,
+                            right: '1%',
+                            initialTreeDepth: 40,
                             symbolSize: (data, param) => {
                                 let da = param.data.value ? param.data.value.split('_')[0] + '_' + param.data.value.split('_')[1] : "";
                                 if (list.includes(da) && param.data.name != "TERMINAL") {
                                     return 10;
                                 } else {
-                                    return 1;
+                                    return 10;
                                 }
                             },
                             label: {
                                 position: 'left',
-                                verticalAlign: 'middle',
+                                verticalAlign: 'top',
                                 align: 'right',
-                                fontSize: 9,
+                                fontSize: 12,
+                                color: '#FFFFFF',
                                 formatter: function (param) {
                                     let da = param.data.value ? param.data.value.split('_')[0] + '_' + param.data.value.split('_')[1] : "";
-                                    if (list.includes(da) && param.data.name != "TERMINAL") {
-                                        return param.data.name;
+                                    //if (list.includes(da) && param.data.name != "TERMINAL") {
+                                    if (param.data.name != "TERMINAL") {
+                                        return param.data.type + '_#_' + param.data.containerName + '_#_' + param.data.name;
                                     } else {
                                         return "";
                                     }
@@ -97,6 +99,10 @@
         option && myChart.setOption(option);
     }
 
+    function openSvg() {
+        url = $("#xmlSrc").val()
+        window.open('/i/' + url)
+    }
 
     const download = window.document.querySelector('#download')
     download.addEventListener('click', () => {

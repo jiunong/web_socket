@@ -11,6 +11,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSONObject;
+import com.xcloud.svg.kafka.producer.KafkaSender;
 import com.xcloud.svg.pojo.MyBatisLog;
 import com.xcloud.svg.service.svg.PoleTransformer;
 import com.xcloud.svg.service.svg.PsrType;
@@ -20,17 +21,17 @@ import com.xcloud.svg.socket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.DocumentException;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TODO
@@ -42,7 +43,10 @@ import java.util.List;
 @Slf4j
 public class IndexController {
 
-    private static String  PATH = "/Users/mac/sict/soft/apache-tomcat-7.0.96/webapps/omspdjx_upload/svg/";
+    private static String PATH = "C:\\svg\\";
+
+    @Resource
+    private KafkaSender kafkaSender;
 
     @RequestMapping("i/{src}")
     public String svg(@PathVariable String src, HttpServletRequest request) {
@@ -108,7 +112,7 @@ public class IndexController {
     @RequestMapping("treeData/{fileName}")
     @ResponseBody
     public JSONObject treeData(@PathVariable String fileName) throws Exception {
-        return SvgService.findAll("/Users/mac/sict/soft/apache-tomcat-7.0.96/webapps/omspdjx_upload/svg_later/209民航线单线图.sln.xml");
+        return SvgService.findAll("C:\\svg\\" + fileName + ".xml");
     }
 
     @RequestMapping("treeData1")
@@ -116,7 +120,6 @@ public class IndexController {
     public JSONObject treeData() throws Exception {
         return SvgService.findAll(PATH + "211公皋线单线图.sln.xml", "PD_30500000_276163");
     }
-
 
 
     @RequestMapping("treeData2")
@@ -213,4 +216,28 @@ public class IndexController {
                 });
     }
 
+    @GetMapping("/sendMessageToKafka")
+    public String sendMessageToKafka() {
+        Map<String, String> messageMap = new HashMap();
+        messageMap.put("message", "我是一条消息");
+        String taskid = "123456";
+        String jsonStr = JSONObject.toJSONString(messageMap);
+        //kakfa的推送消息方法有多种，可以采取带有任务key的，也可以采取不带有的（不带时默认为null）
+        System.out.println("发送了消息："+jsonStr);
+        kafkaSender.send("ZT_DMS_JSSOMS", taskid, jsonStr);
+        return "hi guy!";
+    }
+
+    @ResponseBody
+    @PostMapping("/sendMessageToKafka2")
+    public String sendMessageToKafka2() {
+        Map<String, String> messageMap = new HashMap();
+        messageMap.put("message", "111我是一条消息");
+        String taskid = "123456";
+        String jsonStr = JSONObject.toJSONString(messageMap);
+        //kakfa的推送消息方法有多种，可以采取带有任务key的，也可以采取不带有的（不带时默认为null）
+        System.out.println("发送了消息："+jsonStr);
+        kafkaSender.send("ZT_DMS_JSSOMS", taskid, jsonStr);
+        return "hi guy!";
+    }
 }

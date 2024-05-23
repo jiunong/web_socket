@@ -1,12 +1,41 @@
 server:
-  port: 9999
+  port: 28088
   tomcat:
     uri-encoding: UTF-8
 spring:
   mvc:
     static-path-pattern: /static/**
-
-  thymeleaf:
+  # KAFKA
+  kafka:
+    # ָkafka服务器地址，可以指定多个
+    bootstrap-servers: kd-kfk1:9092,kd-kfk2:9092,kafka3:9092
+    #=============== producer生产者配置 =======================
+    producer:
+      retries: 0
+      # 每次批量发送消息的数量
+      batch-size: 16384
+      # 缓存容量
+      buffer-memory: 33554432
+      # ָ指定消息key和消息体的编解码方式
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    #=============== consumer消费者配置  =======================
+    consumer:
+      #指定默认消费者的group id
+      group-id: JSS_OMS
+      #earliest
+      #当各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，从头开始消费
+      #latest
+      #当各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，消费新产生的该分区下的数据
+      #none
+      #topic各分区都存在已提交的offset时，从offset后开始消费；只要有一个分区不存在已提交的offset，则抛出异常
+      auto-offset-reset: latest
+      enable-auto-commit: true
+      auto-commit-interval: 100ms
+      #指定消费key和消息体的编解码方式
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+tree  thymeleaf:
     enabled: true
     cache: false
     mode: HTML5

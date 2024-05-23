@@ -10,6 +10,7 @@ import com.xcloud.svg.util.XmlUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,12 @@ public class SvgService {
     public static final String LOADBREAKSWITCH = "LoadBreakSwitch";
     public static final String GROUNDDISCONNECTOR = "GroundDisconnector";
     public static final String POWERTRANSFORMER = "PowerTransformer";
+    public static final String CIM_SUBSTATION = "Substation";
     public static final String CIM_PSRTYPE = "PSRType";
+    public static final String CIM_VOLTAGELEVEL = "VoltageLevel";
+    public static final String BUSBARSECTION = "BusbarSection";
+    public static final String TYPE = "TYPE";
+    public static final String CONTAINER_NAME = "CONTAINER_NAME";
     //变压器标签
     public static final String PowerTransformer = "PowerTransformer";
 
@@ -73,9 +79,10 @@ public class SvgService {
     public static JSONObject findAll(String fileName) throws Exception {
         List<JSONObject> list = ListUtil.list(false);
 
-        JSONObject jsonObject = XmlUtil.xmlJsonObj(FileUtil.readString( fileName, StandardCharsets.UTF_8));
+        JSONObject jsonObject = XmlUtil.xmlJsonObj(FileUtil.readString(fileName, StandardCharsets.UTF_8));
         jsonObject.keySet().forEach(u -> {
             List<JSONObject> data = ObjectToJsonList(jsonObject.get(u));
+            data.forEach(d -> d.put(TYPE, u));
             list.addAll(data);
         });
         //获取输入线路开关
@@ -98,7 +105,7 @@ public class SvgService {
             }
         });
 
-        //找到线路的出口开关
+        //找到线路的出口开关 aTrue:当前线路 connect:当前线路
         JSONObject aTrue = ObjectToJsonList(jsonObject.get(FEEDER)).stream().filter(u -> u.get(FEEDER_ISCURRENTFEEDER).equals("true")).findFirst().get();
         String connect = aTrue.get(NORMAL_ENERGIZING_SUBSTATION).toString();
         JSONObject firstBreaker = ObjectToJsonList(jsonObject.get(BREAKER)).stream().filter(u -> u.get(CONTAINER).equals(connect)).findFirst().get();
@@ -226,26 +233,32 @@ public class SvgService {
     public static void beginLoop(List<JSONObject> list, Node p, String id) {
 
         JSONObject o1 = first_findAndDelete(list, id);
-
-        Node x = Node.builder().value(o1.getString(RDF_ID)).name(o1.getString(NAME)).build();
+        Node x = Node.builder().value(o1.getString(RDF_ID)).name(o1.getString(NAME)).type(o1.getString(TYPE)).containerName(o1.getString(CONTAINER_NAME)).build();
         List<JSONObject> o2 = second_findTerminals(list, id);
         o2.forEach(u -> {
             if (StrUtil.isNotEmpty(u.getString(CONNECTIVITY_NODE))) {
-                Node t = Node.builder().value(u.getString(RDF_ID)).name("TERMINAL").build();
+                Node t = Node.builder().value(u.getString(RDF_ID)).name("TERMINAL").type("TERMINAL").build();
                 JSONObject o3 = third_findConnectivityNodes(list, u.getString(CONNECTIVITY_NODE));
                 if (StrUtil.isNotEmpty(o3.getString(RDF_ID))) {
-                    Node c = Node.builder().value(o3.getString(RDF_ID)).name("CONNECTIVITY_NODE").build();
+                    Node c = Node.builder().value(o3.getString(RDF_ID)).name("CONNECTIVITY_NODE").type("CONNECTIVITY_NODE").build();
                     List<JSONObject> o4 = forth_findTerminalsByConnectivityNode(list, o3.getString(RDF_ID));
                     o4.forEach(v -> {
                         beginLoop(list, c, v.getString(CONDUCTING_EQUIPMENT).replace("#", ""));
                     });
                     t.appendChild(c);
                 }
-                x.appendChild(t);
+                //直接接设备 删除连接点  t市terminal c是CONNECTIVITY_NODE
+                if (t != null && t.getChildren() != null && t.getChildren().get(0) != null) {
+                    x.appendChildren(t.getChildren().get(0).getChildren());
+                }
+                //x.appendChild(t);
             }
         });
-        p.appendChild(x);
-
+        //站外-中压用户接入点:PD_37000000
+        //站外-电缆终端头:PD_20200000
+        if (!"Junction,EnergyConsumer".contains(x.getType())) {
+            p.appendChild(x);
+        }
     }
 
 
@@ -263,7 +276,9 @@ public class SvgService {
         return list;
     }
 
-    //1 查找指定的导电设备
+    /**
+     * TODO 1 查找指定的导电设备
+     */
     public static JSONObject first_findAndDelete(List<JSONObject> list, String id) {
         JSONObject o = new JSONObject();
         Iterator<JSONObject> iterator = list.iterator();
@@ -275,10 +290,21 @@ public class SvgService {
                 LogsHandler.instance().logs("1找到并删除导电设备{}", u.toString());
             }
         }
-        return o;
+        List<JSONObject> terPoleByTerminal = findPoleByTerminal(list, id);
+        JSONObject object = terPoleByTerminal.stream().findFirst().orElse(null);
+
+        JSONObject jsonObject = object != null ? object : o;
+        List<JSONObject> psrTypes = list.stream().filter(u -> Objects.equals(u.getString(TYPE), CIM_PSRTYPE)).collect(Collectors.toList());
+        String psrName = psrTypes.stream().filter(u -> Objects.equals(u.getString(RDF_ID), jsonObject.getString(PSRTYPE).replace("#", ""))).findFirst().get().getString(NAME);
+        //System.out.println(psrName + "    -#-    " + jsonObject.getString(NAME));
+        String containerName = findContainer(list, jsonObject.getString(CONTAINER)).stream().map(u -> u.getString(NAME)).findFirst().orElse("");
+        jsonObject.put("CONTAINER_NAME", containerName);
+        return jsonObject;
     }
 
-    //2 通过导电设备的id 找到链接的端子
+    /**
+     * TODO 2 通过导电设备的id 找到链接的端子
+     */
     public static List<JSONObject> second_findTerminals(List<JSONObject> list, String id) {
 
         List<JSONObject> l = ListUtil.list(false);
@@ -294,7 +320,9 @@ public class SvgService {
         return l;
     }
 
-    //3 通过端子的connectivityNode 找到连接点
+    /**
+     * TODO 3 通过端子的connectivityNode 找到连接点
+     */
     public static JSONObject third_findConnectivityNodes(List<JSONObject> list, String connectivityNode) {
         JSONObject o = new JSONObject();
         Iterator<JSONObject> iterator = list.iterator();
@@ -309,7 +337,9 @@ public class SvgService {
         return o;
     }
 
-    //4通过连接点的id 找到所有关联的端子
+    /**
+     * TODO 4通过连接点的id 找到所有关联的端子
+     */
     public static List<JSONObject> forth_findTerminalsByConnectivityNode(List<JSONObject> list, String connectivityNode) {
         List<JSONObject> l = ListUtil.list(false);
         Iterator<JSONObject> iterator = list.iterator();
@@ -323,7 +353,44 @@ public class SvgService {
         }
         return l;
     }
-    //5 通过端子的 ConductingEquipment 寻找指定的导电设备 回到1
+
+    /**
+     * TODO 通过Terminal的 对应 杆塔的 sgcim:PoleCode.Terminal 找到杆塔
+     */
+    public static List<JSONObject> findPoleByTerminal(List<JSONObject> list, String terminal) {
+        List<JSONObject> f = ListUtil.list(false);
+        Iterator<JSONObject> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            JSONObject u = iterator.next();
+            if (StrUtil.isNotEmpty(u.getString(POLECODETERMINAL)) && u.getString(POLECODETERMINAL).contains(terminal)) {
+                f.add(u);
+                iterator.remove();
+                LogsHandler.instance().logs("通过{}找到并删除杆塔{}", terminal, u.toString());
+            }
+        }
+        return f;
+    }
+
+    /**
+     * TODO  通过Disconnector(开关)||BusbarSection（母线）的Equipment.EquipmentContainer  对应 Substation（开闭站） IdentifiedObject.mRID 找到所属变电站 环网柜
+     */
+    public static List<JSONObject> findContainer(List<JSONObject> list, String container) {
+        if (StrUtil.isEmpty(container)) {
+            return ListUtil.list(false);
+        }
+        list = list.stream().filter(v -> !Objects.equals(v.getString(TYPE), CIM_PSRTYPE) && !Objects.equals(v.getString(TYPE), CIM_VOLTAGELEVEL)).collect(Collectors.toList());
+        List<JSONObject> s = ListUtil.list(false);
+        Iterator<JSONObject> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            JSONObject u = iterator.next();
+            if (StrUtil.isNotEmpty(u.getString(RDF_ID)) && container.contains(u.getString(RDF_ID).replace("PD_", "").replace("#", ""))) {
+                s.add(u);
+                //iterator.remove();
+                //LogsHandler.instance().logs("通过{}找到并删除变电站{}", container, u.toString());
+            }
+        }
+        return s;
+    }
 
 
     //findFileName
