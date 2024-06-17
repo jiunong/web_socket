@@ -12,24 +12,88 @@
         padding: 0;
     }
 </style>
-<body>
-<input type="text" id="xmlSrc">
-<button onclick="show(this)">单线详图</button>
-<button onclick="show(this,'treeData12')">举例环网详图</button>
+<body style="background-color: #000000">
+<select id="xmlSrc">
+    <option value="node">test</option>
+    <option value="林丰变10kV河畔线单线图.xml">林丰变10kV河畔线单线图</option>
+    <option value="前进变10kV前翠联线单线图.xml">前进变10kV前翠联线单线图</option>
+    <option value="八棵变624曾屯线单线图.xml">八棵变624曾屯线单线图</option>
+    <option value="下露河线单线图.xml">下露河线单线图</option>
+    <option value="anshan_海城市_大金三线单线图.sln.xml">anshan_海城市_大金三线单线图</option>
+    <option value="22DKX-64385.sln.xml">22DKX-64385.sln.xml</option>
+    <option value="anshan_海城市_大金四线单线图.sln.xml">anshan_海城市_大金四线单线图</option>
+    <option value="anshan_高新区_金属线单线图.sln.xml">anshan_高新区_金属线单线图</option>
+    <option value="anshan_高新区_汤岗子线单线图.sln.xml">anshan_高新区_汤岗子线单线图</option>
+    <option value="anshan_高新区_汤疗线单线图.sln.xml">anshan_高新区_汤疗线单线图</option>
+</select>
+<button onclick="show(this,'')">单线详图</button>
+<button onclick="show(this,'/simple')">单线简图</button>
+<button onclick="show(this,'/tree')">数据关系树</button>
 <button onclick="openSvg()">SVG图</button>
 <button><a id="download" href="">下载当前简图</a></button>
 <input type="hidden" id="fileName">
-<div id="main" style="height: 94vh;width: 99vw;margin:10px;background-color: #000000"></div>
+<div id="app" style="height: 94vh;width: 99vw;margin:10px;"></div>
 </body>
 <script type="text/javascript">
+    var x = 0;
+    y = 0
+    const content = document.getElementById('app');
+    let scale = 1; // 初始缩放比例为1
 
-    function show(obj, num) {
-        let url = num ? num : '/treeData/';
-        num = num ?   num : $("#xmlSrc").val();
-        url = url + num;
+
+    document.body.addEventListener('wheel', (e) => {
+        e.preventDefault(); // 阻止默认的滚动行为
+        const delta = e.deltaY < 0 ? 1.1 : 0.9; // 根据滚动方向调整缩放比例
+        scale *= delta; // 更新缩放比例
+        document.body.style.transformOrigin = `${e.clientX}px ${e.clientY}px`; // 设置中心点
+        x = e.clientX;
+        y = e.clientY;
+        document.body.style.transform = `scale(${scale})`; // 应用缩放变换 //
+    });
+
+
+    var dragItem = document.getElementById('app');
+    var active = false;
+    var currentX;
+    var currentY;
+    var initialX;
+    var initialY;
+    var xOffset = 0;
+    var yOffset = 0;
+
+    document.body.addEventListener('mousedown', function (event) {
+        initialX = event.clientX - xOffset;
+        initialY = event.clientY - yOffset;
+        active = true;
+    }, false);
+
+    document.body.addEventListener('mouseup', function () {
+        active = false;
+    }, false);
+
+    document.body.addEventListener('mousemove', function (event) {
+        event.preventDefault();
+        if (active) {
+            currentX = event.clientX - initialX;
+            currentY = event.clientY - initialY;
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            setTranslate(currentX, currentY, dragItem);
+        }
+    }, false);
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+    }
+
+
+    function show(obj, type) {
+        let url = '/treeData' + type + '/' + $("#xmlSrc").val();
         $('#fileName').val($(obj).text());
         var list = ['PD_11100000', 'PD_11400000', 'PD_30500000', 'PD_11500000', 'PD_11500001', 'PD_11500002', 'PD_30900000', 'PD_30900002', 'PD_11200000', 'PD_30700000', 'PD_11000000', 'PD_11000001', 'PD_11000002', 'PD_30100002', 'PD_30200002', 'PD_30200003', 'PD_30200004', 'PD_30300000'];
-        var chartDom = document.getElementById('main');
+        var chartDom = document.getElementById('app');
         var myChart = echarts.init(chartDom, null, {renderer: 'svg'});
         let option;
         myChart.showLoading();
@@ -48,31 +112,34 @@
                     series: [
                         {
                             type: 'tree',
+                            orient: "vertical", // vertical   //树状方向修改
+                            edgeShape: "polyline", //使用多段折线连接节点
                             data: [data],
                             top: '1%',
                             left: '1%',
                             bottom: '1%',
                             right: '1%',
-                            initialTreeDepth: 40,
+                            initialTreeDepth: 9999,
                             symbolSize: (data, param) => {
                                 let da = param.data.value ? param.data.value.split('_')[0] + '_' + param.data.value.split('_')[1] : "";
                                 if (list.includes(da) && param.data.name != "TERMINAL") {
-                                    return 10;
+                                    return 5;
                                 } else {
-                                    return 10;
+                                    return 5;
                                 }
                             },
                             label: {
                                 position: 'left',
                                 verticalAlign: 'top',
                                 align: 'right',
-                                fontSize: 12,
+                                fontSize: 6,
                                 color: '#FFFFFF',
                                 formatter: function (param) {
                                     let da = param.data.value ? param.data.value.split('_')[0] + '_' + param.data.value.split('_')[1] : "";
                                     //if (list.includes(da) && param.data.name != "TERMINAL") {
                                     if (param.data.name != "TERMINAL") {
                                         return param.data.type + '_#_' + param.data.containerName + '_#_' + param.data.name;
+                                        //  return param.data.name;
                                     } else {
                                         return "";
                                     }
@@ -101,7 +168,7 @@
 
     function openSvg() {
         url = $("#xmlSrc").val()
-        window.open('/i/' + url)
+        window.open('/i/' + url + '.svg')
     }
 
     const download = window.document.querySelector('#download')

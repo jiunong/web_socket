@@ -1,6 +1,5 @@
 package com.xcloud.svg.index;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
@@ -13,8 +12,8 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSONObject;
 import com.xcloud.svg.kafka.producer.KafkaSender;
 import com.xcloud.svg.pojo.MyBatisLog;
-import com.xcloud.svg.service.svg.PoleTransformer;
-import com.xcloud.svg.service.svg.PsrType;
+import com.xcloud.svg.pojo.PoleTransformer;
+import com.xcloud.svg.pojo.PsrType;
 import com.xcloud.svg.service.svg.SvgService;
 import com.xcloud.svg.service.svg.XmlServlce;
 import com.xcloud.svg.socket.WebSocketServer;
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,51 +107,88 @@ public class IndexController {
     }
 
 
+    /**
+     * TODO 详图
+     *
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
     @RequestMapping("treeData/{fileName}")
     @ResponseBody
     public JSONObject treeData(@PathVariable String fileName) throws Exception {
-        return SvgService.findAll("C:\\svg\\" + fileName + ".xml");
+        return SvgService.findAll("C:\\svg\\" + fileName);
     }
 
+    /**
+     * TODO 简图
+     *
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("treeData/simple/{fileName}")
+    @ResponseBody
+    public JSONObject treeDataSimple(@PathVariable String fileName) throws Exception {
+        return SvgService.findAllSimple("C:\\svg\\" + fileName);
+    }
+
+    /**
+     * TODO 数据图
+     *
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("treeData/tree/{fileName}")
+    @ResponseBody
+    public JSONObject treeDataTree(@PathVariable String fileName) throws Exception {
+        return SvgService.findAllData("C:\\svg\\" + fileName);
+    }
+
+    @Deprecated
     @RequestMapping("treeData1")
     @ResponseBody
     public JSONObject treeData() throws Exception {
-        return SvgService.findAll(PATH + "211公皋线单线图.sln.xml", "PD_30500000_276163");
+        return SvgService.findAll(ListUtil.of(PATH + "shenyang_沈阳运检部_农大变80970农毛甲线单线图.sln.xml", PATH + "shenyang_沈阳运检部_农大变80972农毛乙线单线图.sln.xml"));
     }
 
-
+    @Deprecated
     @RequestMapping("treeData2")
     @ResponseBody
     public JSONObject treeData1() throws Exception {
         return SvgService.findAll(PATH + "518园区线单线图.sln.xml", "PD_30500000_271285");
     }
 
-
+    @Deprecated
     @RequestMapping("treeData12")
     @ResponseBody
     public JSONObject treeData4() throws Exception {
         return SvgService.findAll(PATH + "211公皋线单线图.sln.xml", "PD_30500000_276163", "C:\\svg\\518园区线单线图.sln.xml");
     }
 
+    @Deprecated
     @RequestMapping("treeData3")
     @ResponseBody
     public JSONObject treeData2() throws Exception {
         return SvgService.findAll("C:\\svg\\113疏豪线单线图.sln.xml", "PD_31100000_288122");
     }
 
+    @Deprecated
     @RequestMapping("treeData4")
     @ResponseBody
     public JSONObject treeData3() throws Exception {
         return SvgService.findAll("C:\\svg\\111现代线单线图.sln.xml", "PD_30500000_305465");
     }
 
-
+    @Deprecated
     @RequestMapping("treeData34")
     @ResponseBody
     public JSONObject treeData34() throws Exception {
         return SvgService.findAll("C:\\svg\\113疏豪线单线图.sln.xml", "PD_31100000_288122", "C:\\svg\\111现代线单线图.sln.xml");
     }
 
+    @Deprecated
     @RequestMapping("treeData5")
     @ResponseBody
     public JSONObject treeData5() throws Exception {
@@ -223,7 +258,7 @@ public class IndexController {
         String taskid = "123456";
         String jsonStr = JSONObject.toJSONString(messageMap);
         //kakfa的推送消息方法有多种，可以采取带有任务key的，也可以采取不带有的（不带时默认为null）
-        System.out.println("发送了消息："+jsonStr);
+        System.out.println("发送了消息：" + jsonStr);
         kafkaSender.send("ZT_DMS_JSSOMS", taskid, jsonStr);
         return "hi guy!";
     }
@@ -236,7 +271,7 @@ public class IndexController {
         String taskid = "123456";
         String jsonStr = JSONObject.toJSONString(messageMap);
         //kakfa的推送消息方法有多种，可以采取带有任务key的，也可以采取不带有的（不带时默认为null）
-        System.out.println("发送了消息："+jsonStr);
+        System.out.println("发送了消息：" + jsonStr);
         kafkaSender.send("ZT_DMS_JSSOMS", taskid, jsonStr);
         return "hi guy!";
     }

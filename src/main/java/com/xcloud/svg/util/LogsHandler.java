@@ -82,7 +82,7 @@ public class LogsHandler {
      * @since 2021/1/19 10:04
      */
     public void logs(String log, Object... var2) {
-        /*AtomicReference<String> logNew = new AtomicReference<>(log);
+       /* AtomicReference<String> logNew = new AtomicReference<>(log);
 
         Arrays.asList(var2).forEach(u -> logNew.set(logNew.get().replaceFirst("\\{}", (String) u)));
         FileUtil.appendUtf8Lines(ListUtil.toList(DateTime.now().toString()

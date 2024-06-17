@@ -1,4 +1,4 @@
-package com.xcloud.svg.service.svg;
+package com.xcloud.svg.pojo;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Builder;

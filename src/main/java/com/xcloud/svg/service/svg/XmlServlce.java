@@ -3,8 +3,10 @@ package com.xcloud.svg.service.svg;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.setting.SettingUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.xcloud.svg.pojo.SvgNode;
+import com.xcloud.svg.pojo.PoleTransformer;
+import com.xcloud.svg.pojo.PsrType;
 import com.xcloud.svg.util.XmlUtil;
 import org.dom4j.DocumentException;
 
@@ -30,8 +32,8 @@ public class XmlServlce {
 
     public static List<PoleTransformer> getPoles(String relativePath) throws DocumentException {
         JSONObject object = XmlUtil.xmlJsonObj(FileUtil.readString(relativePath, StandardCharsets.UTF_8));
-        List<Node> onPoles = ListUtil.list(false);
-        List<Node> offPoles = ListUtil.list(false);
+        List<SvgNode> onPoles = ListUtil.list(false);
+        List<SvgNode> offPoles = ListUtil.list(false);
         List<JSONObject> list = ObjectToJsonList(object.get(POLECODE));
         List<JSONObject> powers = ObjectToJsonList(object.get(POWERTRANSFORMER));//所有的变压器
         List<JSONObject> breakers = ObjectToJsonList(object.get(BREAKER));
@@ -39,7 +41,7 @@ public class XmlServlce {
             if (u.get(RDF_ID).equals("PD_10200000_2931785")) {
                 System.out.println();
             }
-            Node pole = Node.builder().name(u.getString(NAME)).value(u.getString(RDF_ID)).build();
+            SvgNode pole = SvgNode.builder().name(u.getString(NAME)).value(u.getString(RDF_ID)).build();
             List<Object> o = ObjectToJsonList(u).stream().map(m -> m.get("PoleCode.Terminal")).collect(Collectors.toList());
             List<Object> ts = ListUtil.list(false);
             if (o.get(0) instanceof String) {
@@ -48,13 +50,13 @@ public class XmlServlce {
                 ts = (List<Object>) o.get(0);
             }
 
-            List<Node> cl = ListUtil.list(false);
+            List<SvgNode> cl = ListUtil.list(false);
             for (int i = 0; i < ts.size(); i++) {
                 String s = ts.get(i).toString();
                 String substring = s.substring(s.indexOf("#") + 1, s.length() - 2);
                 JSONObject jsonObject = powers.stream().filter(w -> w.getString(RDF_ID).equals(substring)).findFirst().orElse(null);
                 if (jsonObject != null) {
-                    Node power = Node.builder().name(jsonObject.getString(NAME)).value(jsonObject.getString(RDF_ID)).build();
+                    SvgNode power = SvgNode.builder().name(jsonObject.getString(NAME)).value(jsonObject.getString(RDF_ID)).build();
                     cl.add(power);
                 }
             }
@@ -68,7 +70,7 @@ public class XmlServlce {
         List<PoleTransformer> allPowers = ListUtil.list(false);
         List<String> allPowerIds = ListUtil.list(false);
         onPoles.forEach(u -> {
-            List<Node> children = u.getChildren();
+            List<SvgNode> children = u.getChildren();
             children.forEach(v -> {
                 PoleTransformer poleTransformer = PoleTransformer.builder().transformerName(v.getName()).transformerId(v.getValue()).poleId(u.getValue()).poleName(u.getName()).build();
                 allPowers.add(poleTransformer);
