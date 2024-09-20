@@ -19,6 +19,7 @@ import com.xcloud.svg.service.svg.XmlServlce;
 import com.xcloud.svg.socket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.DocumentException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * TODO
@@ -42,6 +44,9 @@ import java.util.Map;
 public class IndexController {
 
     private static String PATH = "C:\\svg\\";
+
+    @Value("${svg.dir}")
+    private String svgDir;
 
     @Resource
     private KafkaSender kafkaSender;
@@ -61,6 +66,14 @@ public class IndexController {
     @RequestMapping("tree")
     public String svgTree() {
         return "svgTree";
+    }
+    @RequestMapping("svgList")
+    public String treeList(HttpServletRequest request) {
+
+        List<File> files = FileUtil.loopFiles(svgDir, file -> file.getName().contains("svg"));
+        List<String> collect = files.stream().map(File::getName).collect(Collectors.toList());
+        request.setAttribute("files", collect);
+        return "svgList";
     }
 
 

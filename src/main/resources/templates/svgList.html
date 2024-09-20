@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>svg</title>
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/echarts.js"></script>
+</head>
+<style type="text/css">
+    body {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+<body>
+<div style="display: flex;flex-wrap: nowrap" th:each="file,state : ${files}">
+    <div th:text="${file}"  onclick="openSvg(this)" style="cursor: pointer">
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    function openSvg(p) {
+        url = $("#xmlSrc").val()
+        window.open('/i/'+ $(p).text())
+    }
+</script>
+</html>

@@ -135,6 +135,8 @@ public class SvgService {
 
         SvgNode p = SvgNode.builder().value(station66kv.getString(RDF_ID)).id(station66kv.getString(RDF_ID)).psrId(station66kv.getString(PSR_ID)).name(station66kv.getString(NAME)).type("Substation").build();
         beginLoop(list, p, id);
+
+
         SvgNode busbar = p.getChildren().get(0).getChildren().stream().filter(u -> BUSBARSECTION.equals(u.getType())).findFirst().orElse(SvgNode.busbarSection());
         p.getChildren().get(0).removeChild(busbar);
         List<SvgNode> children = p.getChildren();
@@ -164,12 +166,14 @@ public class SvgService {
         SvgNode svgNode = JSONObject.parseObject(JSONObject.toJSONString(all), SvgNode.class);
         postVisit(svgNode, null);
 
-        //List<String> tttags = allNode.stream().filter(u -> ListUtil.of("鞍钢附企红钢水泥有限责任公司", "鞍山冶金集团设备工程有限公司", "鞍山市红力新型建筑材料制造有限公司", "鞍钢附企机电设备制造有限公司").contains(u.getContainerName())).map(SvgNode::getValue).collect(Collectors.toList());
-        //tags = ListUtil.list(false);
-        //tags.addAll(tttags);
-        //tags.add("PD_11000000_88415");
-        //tags.add("PD_11500000_94648");
-
+        List<String> tttags = allNode.stream().filter(u -> ListUtil.of("绿纳").contains(u.getContainerName())).map(SvgNode::getValue).collect(Collectors.toList());
+        tags = ListUtil.list(false);
+        tags.addAll(tttags);
+        //tags.add("b4fef3c9-0eae-485f-bfe8-9d54b377a419");
+        //tags.add("4fd46025-9b1e-4756-82e7-8de7a651a7c3");
+        //tags.add("12376c22-54d5-48b8-9892-f14f21c98caf");
+        //tags.add("0781d340-4821-4d1a-8ccc-1845832c7ec9");
+        //tags.add("PD_10200000_5492385");
         preVisit(svgNode, null);
         inorderVisitBusBar(svgNode, null);
         inorderVisitClearACLine(svgNode, null);
@@ -189,38 +193,7 @@ public class SvgService {
     public static JSONObject findAllData(String fileName) throws Exception {
         JSONObject all = findAll(fileName);
         SvgNode svgNode = JSONObject.parseObject(JSONObject.toJSONString(all), SvgNode.class);
-        tags.add("PD_31100000_432978");
-        tags.add("PD_30200003_470226");
-        tags.add("PD_30600000_898390");
-        tags.add("PD_30200003_470225");
-        tags.add("PD_30600000_898389");
-        tags.add("PD_30600000_898388");
-        tags.add("PD_31100000_521297");
-        tags.add("PD_30200003_594660");
-        tags.add("PD_30600000_1028042");
-        tags.add("PD_30600000_1028043");
-        tags.add("PD_31100000_432978");
-        tags.add("PD_30200003_470226");
-        tags.add("PD_30600000_898390");
-        tags.add("PD_30200003_470225");
-        tags.add("PD_30600000_898389");
-        tags.add("PD_30600000_898388");
-        tags.add("PD_31100000_521297");
-        tags.add("PD_30200003_594660");
-        tags.add("PD_30600000_1028042");
-        tags.add("PD_30600000_1028043");
-        tags.add("PD_31100000_432978");
-        tags.add("PD_30200003_470226");
-        tags.add("PD_30600000_898390");
-        tags.add("PD_30200003_470225");
-        tags.add("PD_30600000_898389");
-        tags.add("PD_30600000_898388");
-        tags.add("PD_31100000_521297");
-        tags.add("PD_30200003_594660");
-        tags.add("PD_30600000_1028042");
-        tags.add("PD_30600000_1028043");
-        tags.add("PD_11500000_818808");
-        tags.add("PD_0110_2e8c2c67-eeff-4e9a-8eaf-bda9df1d218d");
+
         postVisit(svgNode, null);
         inorderVisitClearACLine(svgNode, null);
         preVisit(svgNode, null);
@@ -404,7 +377,7 @@ public class SvgService {
         });
         //站外-中压用户接入点:PD_37000000
         //站外-电缆终端头:PD_20200000
-        if (x != null && x.getType() != null && !"Junction,EnergyConsumer".contains(x.getType())) {
+        if (x != null && x.getType() != null && !"Junction,EnergyConsumer,Assert".contains(x.getType())) {
             p.appendChild(x);
         }
         //p.appendChild(x);
@@ -768,7 +741,7 @@ public class SvgService {
         if (node.getType().equals("ACLineSegment")) {
             pNode.removeChild(node);
             pNode.appendChildren(node.getChildren());
-            node = cowList.get(0);
+            node = cowList.size() > 0 ? cowList.get(0) : null;
         }
         for (SvgNode svgNode : cowList) {
             inorderVisitClearACLine(svgNode, node);

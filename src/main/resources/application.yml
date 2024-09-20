@@ -3,11 +3,13 @@ server:
   tomcat:
     uri-encoding: UTF-8
 spring:
+  main:
+    scan-base-packages:
   mvc:
     static-path-pattern: /static/**
   # KAFKA
   kafka:
-    # ָkafka服务器地址，可以指定多个
+    # ?kafka服务器地址，可以指定多个
     bootstrap-servers: kd-kfk1:9092,kd-kfk2:9092,kafka3:9092
     #=============== producer生产者配置 =======================
     producer:
@@ -16,7 +18,7 @@ spring:
       batch-size: 16384
       # 缓存容量
       buffer-memory: 33554432
-      # ָ指定消息key和消息体的编解码方式
+      # ?指定消息key和消息体的编解码方式
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     #=============== consumer消费者配置  =======================
@@ -36,10 +38,10 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 tree  thymeleaf:
-    enabled: true
-    cache: false
-    mode: HTML5
-    servlet:
-      content-type: text/html
+  enabled: true
+  cache: false
+  mode: HTML5
+  servlet:
+    content-type: text/html
 svg:
   dir: file:C:/svg/

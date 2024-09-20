@@ -13,8 +13,18 @@
     }
 </style>
 <body style="background-color: #000000">
+<input type="text" id="manual_file">
 <select id="xmlSrc">
     <option value="node">test</option>
+    <option value="6.xml">6</option>
+    <option value="4.xml">4</option>
+    <option value="22DKX-229825.xml">22DKX-229825</option>
+    <option value="55187374-d63b-43e4-99e5-8c3dc1fb6eac.xml">55187374-d63b-43e4-99e5-8c3dc1fb6eac</option>
+    <option value="22DKX-575793.xml">22DKX-575793.xml</option>
+    <option value="anshan_岫岩满族自治县_果圆线单线图.sln.xml">anshan_岫岩满族自治县_果圆线单线图.sln.xml</option>
+    <option value="anshan_铁西区_果园西线单线图.sln.xml">anshan_海城anshan_铁西区_果园西线单线图.sln.xml</option>
+    <option value="anshan_海城市_颐和线单线图.sln.xml">anshan_海城市_颐和线单线图.sln.xml</option>
+    <option value="anshan_铁东区_对炉线单线图.sln.xml">anshan_铁东区_对炉线单线图.sln.xml</option>
     <option value="林丰变10kV河畔线单线图.xml">林丰变10kV河畔线单线图</option>
     <option value="前进变10kV前翠联线单线图.xml">前进变10kV前翠联线单线图</option>
     <option value="八棵变624曾屯线单线图.xml">八棵变624曾屯线单线图</option>
@@ -90,7 +100,11 @@
 
 
     function show(obj, type) {
-        let url = '/treeData' + type + '/' + $("#xmlSrc").val();
+        let url = '/treeData' + type + '/' + $("#manual_file").val();
+        url = '/treeData' + type + '/' + $("#xmlSrc").val();
+        if (!url){
+            url = '/treeData' + type + '/' + $("#xmlSrc").val();
+        }
         $('#fileName').val($(obj).text());
         var list = ['PD_11100000', 'PD_11400000', 'PD_30500000', 'PD_11500000', 'PD_11500001', 'PD_11500002', 'PD_30900000', 'PD_30900002', 'PD_11200000', 'PD_30700000', 'PD_11000000', 'PD_11000001', 'PD_11000002', 'PD_30100002', 'PD_30200002', 'PD_30200003', 'PD_30200004', 'PD_30300000'];
         var chartDom = document.getElementById('app');
