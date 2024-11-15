@@ -70,8 +70,9 @@ public class IndexController {
     @RequestMapping("svgList")
     public String treeList(HttpServletRequest request) {
 
-        List<File> files = FileUtil.loopFiles(svgDir, file -> file.getName().contains("svg"));
-        List<String> collect = files.stream().map(File::getName).collect(Collectors.toList());
+//        List<File> files = FileUtil.loopFiles(svgDir, file -> file.getName().contains("svg"));
+        List<File> files = FileUtil.loopFiles(new File("C:\\svg"), 1, file -> file.getName().contains("svg"));
+        List<String> collect = files.stream().sorted().map(File::getName).collect(Collectors.toList());
         request.setAttribute("files", collect);
         return "svgList";
     }

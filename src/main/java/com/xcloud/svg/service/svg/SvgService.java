@@ -166,12 +166,12 @@ public class SvgService {
         SvgNode svgNode = JSONObject.parseObject(JSONObject.toJSONString(all), SvgNode.class);
         postVisit(svgNode, null);
 
-        List<String> tttags = allNode.stream().filter(u -> ListUtil.of("绿纳").contains(u.getContainerName())).map(SvgNode::getValue).collect(Collectors.toList());
+        List<String> tttags = allNode.stream().filter(u -> ListUtil.of("辽宁鑫达滑石集团有限公司").contains(u.getContainerName())).map(SvgNode::getValue).collect(Collectors.toList());
         tags = ListUtil.list(false);
         tags.addAll(tttags);
-        //tags.add("b4fef3c9-0eae-485f-bfe8-9d54b377a419");
-        //tags.add("4fd46025-9b1e-4756-82e7-8de7a651a7c3");
-        //tags.add("12376c22-54d5-48b8-9892-f14f21c98caf");
+        tags.add("PD_11000001_689567");
+        tags.add("PD_11500000_582963");
+        tags.add("PD_11000001_957244");
         //tags.add("0781d340-4821-4d1a-8ccc-1845832c7ec9");
         //tags.add("PD_10200000_5492385");
         preVisit(svgNode, null);

@@ -6,6 +6,8 @@
     <script src="../static/js/jquery.js"></script>
     <script src="../static/js/d3.js"></script>
     <script src="../static/js/jquery.svg.pan.zoom.js"></script>
+    <script type="text/javascript" src="../static/js/svg.js/dist/svg.js"></script>
+    <script type="text/javascript" src="../static/js/svg.panzoom.js"></script>
 </head>
 <script type="text/javascript">
     var svgPanZoom,
@@ -19,10 +21,19 @@
             POLECODE_LAYER_COLOR: 'rgb(255,255,255)'//杆塔的初始颜色
         };
     $(function () {
+        document.addEventListener("contextmenu", function (event) {
+            event.preventDefault(); // 取消默认右键菜单行为
+        });
         $("#svg").load('/svg/' + $("#src").val(), function () {
-            /*实现svg图像缩放功能 */
+            /*实现svg图像缩放功能
             svgPanZoom = $("svg").svgPanZoom();
-            svgPanZoom.zoomFactor = 2.5;//缩放倍数
+            svgPanZoom.zoomFactor = 2.5;//缩放倍数 */
+            $('#svg svg').attr("id", "svg2")
+            SVG('svg2').size(window.innerWidth, window.innerHeight).id("linkSvg1").panZoom().zoom(1).panZoom({
+                zoomMin: 0.1,
+                zoomFactor: 0.3,
+                zoomMax: 20
+            });
             $("svg").css("height", "100vh")
             $("svg").css("width", "100vw")
             $("g").css("height", "100vh")
